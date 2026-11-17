@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>رعاية نباتات الزينة</title>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF2E8;--surface:#FAFCF7;--ink:#1D2B22;--mute:#5B6B60;--line:#D3DECB;--leaf:#2F5D43;--on-leaf:#F4F8F1;--water:#2F6E9E;--late:#B4492F;--track:#DCE6D4;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121B15;--surface:#1B2820;--ink:#E6EFE3;--mute:#94A89A;--line:#2C3D32;--leaf:#8CC49A;--on-leaf:#10201A;--water:#7DB6E3;--late:#E58C74;--track:#2A3B30;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121B15;--surface:#1B2820;--ink:#E6EFE3;--mute:#94A89A;--line:#2C3D32;--leaf:#8CC49A;--on-leaf:#10201A;--water:#7DB6E3;--late:#E58C74;--track:#2A3B30;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Readex Pro",Tahoma,"Segoe UI",sans-serif;line-height:1.7}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.7rem;font-weight:600;margin:8px 0 4px}
+.sub{color:var(--mute);margin:0 0 20px}
+.stats{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.stat{flex:1;min-width:120px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.stat b{display:block;font-size:1.5rem;font-weight:600}
+.stat span{color:var(--mute);font-size:.85rem}
+.stat.due b{color:var(--water)}
+h2{font-size:1.1rem;font-weight:600;margin:26px 0 10px}
+.plant{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.top{display:flex;gap:12px;align-items:center}
+.em{font-size:2rem;line-height:1}
+.nm{font-weight:600;font-size:1.05rem}
+.meta{color:var(--mute);font-size:.85rem}
+.top .del{margin-inline-start:auto}
+.bar{height:8px;background:var(--track);border-radius:6px;margin:12px 0 6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--leaf);border-radius:6px}
+.bar.today i{background:var(--water)}
+.bar.late i{background:var(--late)}
+.st{font-size:.9rem;font-weight:600}
+.st.today{color:var(--water)}.st.late{color:var(--late)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+button,select,input{font:inherit;color:var(--ink)}
+button{border:1px solid var(--line);background:transparent;border-radius:10px;padding:6px 12px;cursor:pointer}
+button.main{background:var(--leaf);color:var(--on-leaf);border-color:var(--leaf)}
+button.water{background:var(--water);border-color:var(--water);color:var(--bg)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--water);outline-offset:2px}
+button.del{border:0;color:var(--mute);padding:4px 8px}
+.tip{font-size:.85rem;color:var(--mute);margin-top:8px}
+form{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:12px;grid-template-columns:1fr 1fr}
+form .full{grid-column:1/-1}
+label{display:grid;gap:4px;font-size:.9rem;color:var(--mute)}
+select,input{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
+.empty{border:2px dashed var(--line);border-radius:18px;padding:26px;text-align:center;color:var(--mute)}
+.guide{display:grid;gap:8px}
+.guide div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:.92rem}
+.guide b{font-weight:600}
+@media (max-width:520px){form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>🪴 رعاية نباتات الزينة</h1>
+<p class="sub">سجّلي نباتات بيتك، وسنذكّرك بموعد السقي والتسميد.</p>
+
+<div class="stats">
+<div class="stat"><b id="sTotal">0</b><span>عدد النباتات</span></div>
+<div class="stat due"><b id="sWater">0</b><span>تحتاج سقيًا اليوم</span></div>
+<div class="stat"><b id="sFert">0</b><span>تحتاج تسميدًا</span></div>
+</div>
+
+<h2>نباتاتي</h2>
+<div id="list"></div>
+
+<h2>إضافة نبات</h2>
+<form id="add">
+<label class="full">نوع النبات
+<select id="type"></select></label>
+<label>اسم مخصص (اختياري)<input id="nick" maxlength="30"></label>
+<label>مكانه في البيت<input id="room" maxlength="30" placeholder="الصالة، غرفة النوم…"></label>
+<label>السقي كل (يوم)<input id="wd" type="number" min="1" max="60"></label>
+<label>التسميد كل (يوم)<input id="fd" type="number" min="7" max="180"></label>
+<label class="full">تاريخ آخر سقي<input id="last" type="date"></label>
+<div class="full"><button class="main" type="submit">إضافة النبات</button></div>
+</form>
+
+<h2>قواعد عامة للعناية</h2>
+<div class="guide">
+<div><b>السقي:</b> اغرسي إصبعك 3 سم في التربة؛ إن كانت جافة فاسقي، وإن كانت رطبة فانتظري.</div>
+<div><b>الضوء:</b> نباتات الظل تكره الشمس المباشرة؛ مكان قرب نافذة بضوء غير مباشر يكفيها.</div>
+<div><b>التسميد:</b> في الربيع والصيف فقط، وبنصف الجرعة المكتوبة على العبوة. أوقفيه في الشتاء.</div>
+<div><b>الأوراق:</b> امسحيها بقطعة قماش رطبة كل أسبوعين لإزالة الغبار.</div>
+<div><b>التصريف:</b> تأكدي أن الأصيص له فتحات، وفرغي الماء المتجمع في الصحن.</div>
+</div>
+</main>
+
+<script>
+var CATALOG=[
+{n:"بوتس (الفل الذهبي)",e:"🌿",l:"ظل إلى ضوء غير مباشر",w:7,f:30,t:"أصفرار الأوراق يعني غالبًا زيادة في الماء."},
+{n:"لسان الحماة",e:"🪴",l:"ظل إلى ضوء قوي",w:14,f:60,t:"يتحمل الإهمال؛ لا تسقيه إلا عند جفاف التربة تمامًا."},
+{n:"زنبق السلام",e:"🌼",l:"ظل",w:5,f:30,t:"تتدلى أوراقه عند العطش ثم تعود بعد السقي."},
+{n:"زاميا (ZZ)",e:"🌱",l:"ظل إلى ضوء خافت",w:14,f:60,t:"يخزن الماء في جذوره، فالسقي القليل أفضل."},
+{n:"مونستيرا",e:"🍃",l:"ضوء غير مباشر",w:7,f:30,t:"امسحي أوراقه الكبيرة وأعطيه عمودًا ليتسلق."},
+{n:"فيلودندرون",e:"💚",l:"ظل إلى ضوء غير مباشر",w:7,f:30,t:"قصّي الأغصان الطويلة لتكثيف النمو."},
+{n:"أجلونيما",e:"🌿",l:"ظل",w:7,f:45,t:"من أنسب النباتات للأماكن قليلة الضوء."},
+{n:"دراسينا",e:"🌴",l:"ضوء خافت إلى متوسط",w:10,f:45,t:"حساسة للكلور؛ يفضل ماء مترك ليلة."},
+{n:"فيكس مطاطي",e:"🌳",l:"ضوء غير مباشر",w:7,f:30,t:"لا تنقلي مكانه كثيرًا فقد يُسقط أوراقه."},
+{n:"نبات العنكبوت",e:"🕸️",l:"ضوء غير مباشر",w:7,f:30,t:"أطراف الأوراق البنية تعني جفاف الهواء أو ماء مالحًا."},
+{n:"السرخس",e:"🌾",l:"ظل رطب",w:3,f:30,t:"يحب الرطوبة؛ رشّيه بالماء وأبقي تربته رطبة."},
+{n:"ألوفيرا",e:"🪻",l:"ضوء قوي غير مباشر",w:14,f:60,t:"تسقى قليلًا، ولا تتحمل بقاء الماء في الأصيص."},
+{n:"نبات آخر",e:"🌸",l:"حسب النوع",w:7,f:30,t:""}
+];
+var KEY="plant-care-v1",plants=[];
+function load(){try{var r=localStorage.getItem(KEY);plants=r?JSON.parse(r):[]}catch(e){plants=[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(plants))}catch(e){}}
+function iso(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(x<10?"0":"")+x}
+function parse(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function since(s){return Math.round((parse(iso(new Date()))-parse(s))/864e5)}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function ar(n){return String(n).replace(/\d/g,function(d){return"٠١٢٣٤٥٦٧٨٩"[d]})}
+function days(n){return n===1?"يوم واحد":n===2?"يومان":n<=10?ar(n)+" أيام":ar(n)+" يومًا"}
+
+var typeEl=document.getElementById("type");
+CATALOG.forEach(function(c,i){var o=document.createElement("option");o.value=i;o.textContent=c.e+" "+c.n;typeEl.appendChild(o)});
+function fillDefaults(){var c=CATALOG[typeEl.value];document.getElementById("wd").value=c.w;document.getElementById("fd").value=c.f}
+typeEl.addEventListener("change",fillDefaults);
+document.getElementById("last").value=iso(new Date());
+fillDefaults();
+
+document.getElementById("add").addEventListener("submit",function(ev){
+ev.preventDefault();
+var c=CATALOG[typeEl.value];
+plants.push({id:Date.now(),type:+typeEl.value,name:document.getElementById("nick").value.trim()||c.n,room:document.getElementById("room").value.trim(),
+wd:Math.max(1,+document.getElementById("wd").value||c.w),fd:Math.max(7,+document.getElementById("fd").value||c.f),
+lastW:document.getElementById("last").value||iso(new Date()),lastF:iso(new Date())});
+save();document.getElementById("nick").value="";document.getElementById("room").value="";render()});
+
+function act(id,kind){
+plants.forEach(function(p){if(p.id===id){if(kind==="w")p.lastW=iso(new Date());if(kind==="f")p.lastF=iso(new Date())}});
+save();render()}
+function del(id){plants=plants.filter(function(p){return p.id!==id});save();render()}
+
+function render(){
+var box=document.getElementById("list"),dueW=0,dueF=0;
+var rows=plants.map(function(p){var left=p.wd-since(p.lastW),fl=p.fd-since(p.lastF);return{p:p,left:left,fl:fl}});
+rows.sort(function(a,b){return a.left-b.left});
+rows.forEach(function(r){if(r.left<=0)dueW++;if(r.fl<=0)dueF++});
+document.getElementById("sTotal").textContent=ar(plants.length);
+document.getElementById("sWater").textContent=ar(dueW);
+document.getElementById("sFert").textContent=ar(dueF);
+if(!plants.length){box.innerHTML='<div class="empty">لا توجد نباتات بعد. اختاري نوعًا من القائمة أدناه وأضيفيه لتبدأ المتابعة.</div>';return}
+box.innerHTML=rows.map(function(r){
+var p=r.p,c=CATALOG[p.type]||CATALOG[CATALOG.length-1],cls="",txt;
+if(r.left<0){cls="late";txt="متأخر عن السقي "+days(-r.left)}
+else if(r.left===0){cls="today";txt="موعد السقي اليوم"}
+else txt="السقي بعد "+days(r.left);
+var pct=Math.max(6,Math.min(100,(r.left/p.wd)*100));
+if(r.left<=0)pct=100;
+var fert=r.fl<=0?'<span class="meta">حان وقت التسميد</span>':'<span class="meta">التسميد بعد '+days(r.fl)+'</span>';
+return '<div class="plant"><div class="top"><span class="em">'+c.e+'</span><div><div class="nm">'+esc(p.name)+'</div><div class="meta">'+esc(c.l)+(p.room?" · "+esc(p.room):"")+'</div></div><button class="del" onclick="del('+p.id+')" aria-label="حذف">✕</button></div>'
++'<div class="bar '+cls+'"><i style="width:'+pct+'%"></i></div><div class="st '+cls+'">'+txt+'</div>'
++'<div class="row"><button class="'+(r.left<=0?"water":"main")+'" onclick="act('+p.id+',\'w\')">💧 تم السقي</button><button onclick="act('+p.id+',\'f\')">🌱 تم التسميد</button>'+fert+'</div>'
++(c.t?'<div class="tip">'+esc(c.t)+'</div>':'')+'</div>'}).join("")}
+load();render();
+</script>
+</body>
+</html>
